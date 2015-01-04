@@ -1,10 +1,10 @@
+# -*- coding: UTF-8 -*-
 """csvp.py
 
 Manipulacao de arquivos csvs
 
 
 """
-# -*- coding: UTF-8 -*-
 
 import csv, sys
 import argparse
@@ -29,12 +29,15 @@ def changecodec(fin, fconvert, filein):
 
 def main():
 
-
-#:TODO: 02.01.15 19:37:25, junior
-# opcao para busca de uma string
     # opcoes para linha de comando
+
     parser = argparse.ArgumentParser(usage=__doc__)
     parser.add_argument('--fin', default='input.csv', help='arquivo de entrada csv')
+    parser.add_argument('--convert', action='append', help='converte para utf8')
+    parser.add_argument( '--output',  default='output.txt', help='arquivo de saida')
+    parser.add_argument( '--search', help='busca por uma string')
+    args = parser.parse_args()
+
 #:FIXME: 27.12.14 23:35:23, junior
 # o csv.reader nao suporta o utf8
 
@@ -44,14 +47,10 @@ def main():
     #         print(linha)
     # dialect = csv_mod.Sniffer().sniff(codecs.EncodedFile(file,"utf-8").read(1024))
 
-
-    parser.add_argument('--convert', action='append', help='converte para utf8')
-    parser.add_argument( '--output',  default='output.txt', help='arquivo de saida')
-    args = parser.parse_args()
-
 #:FIXME: 02.01.15 19:35:44, junior
 # o arquivo deve ser lido como csv
-    filein = open(args.fin, encoding='latin1')
+
+    filein = open(args.fin, encoding='utf-8')
 
     if args.convert :
         for item in args.convert:
@@ -60,10 +59,11 @@ def main():
 
     for linha in codecs.open('teste.csv', 'rb', encoding='utf-8'):
         matricula, nome, email = linha.split(';')
-        if (nome.lower().find('na'.lower()) >= 0):
+        if (nome.lower().find(args.search.lower()) >= 0):
             print(nome.encode('utf-8'), email)
 
     filein.close()
+    print ("à")
 
 
 if __name__ == '__main__':
