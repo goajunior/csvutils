@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 """csvp.py
 
 Manipulacao de arquivos csvs
@@ -9,17 +9,20 @@ Manipulacao de arquivos csvs
 import csv, sys
 import argparse
 import codecs
+import os
 
+def filehandling(fin, convertedfile, outputfile):
+
+    base          = os.path.splitext(fin)[0]
+    convertedfile = base + '-utf8.csv'
+    outputfile    = base + '-gamil.csv'
+
+    return (convertedfile, outputfile)
 
 def changecodec(fin, fconvert, filein):
 
-
-#:TODO: 02.01.15 19:35:04, junior
-# abrir o arquivo no formato csv
     fout   = codecs.open(fconvert, 'w', encoding='utf-8')
 
-#:TODO: 02.01.15 19:36:11, junior
-# escrever no formato do csv para importar no gmail
     for line in filein:
         fout.write(line)
 
@@ -27,44 +30,49 @@ def changecodec(fin, fconvert, filein):
 
     return 
 
+#:TODO: 10.01.15 00:56:02, junior
+# implementar a escrita de arquivo no formato csv para o gmail
+def gmailcontactcsv(convertedfile, outputfile):
+
+    fout   = codecs.open(outputfile, 'w', encoding='utf-8')
+
+    return
+
 def main():
+
+    count         = 0
+    convertedfile = None
+    outputfile    = None
 
     # opcoes para linha de comando
 
     parser = argparse.ArgumentParser(usage=__doc__)
     parser.add_argument('--fin', default='input.csv', help='arquivo de entrada csv')
-    parser.add_argument('--convert', action='append', help='converte para utf8')
-    parser.add_argument( '--output',  default='output.txt', help='arquivo de saida')
+    parser.add_argument('--convert', action='store_true', help='converte para utf8')
+    parser.add_argument( '--gmail',  action='store_true', help='arquivo csv que pode ser importado no gmail')
     parser.add_argument( '--search', help='busca por uma string')
+
     args = parser.parse_args()
 
-#:FIXME: 27.12.14 23:35:23, junior
-# o csv.reader nao suporta o utf8
-
-    # with open('teste.csv', newline='', encoding='utf-8') as f:
-    #     reader = csv.reader(f)
-    #     for linha in reader:
-    #         print(linha)
-    # dialect = csv_mod.Sniffer().sniff(codecs.EncodedFile(file,"utf-8").read(1024))
-
-#:FIXME: 02.01.15 19:35:44, junior
-# o arquivo deve ser lido como csv
+    convertedfile, outputfile = filehandling(args.fin, convertedfile, outputfile)
+    print(convertedfile, outputfile)
 
     filein = open(args.fin, encoding='utf-8')
 
-    if args.convert :
-        for item in args.convert:
-            changecodec(args.fin, item, filein)
+    if args.convert or args.search :
+          changecodec(args.fin, convertedfile, filein)
 
-
-    for linha in codecs.open('teste.csv', 'rb', encoding='utf-8'):
+    for linha in codecs.open(convertedfile, 'rb', encoding='utf-8'):
         matricula, nome, email = linha.split(';')
         if (nome.lower().find(args.search.lower()) >= 0):
-            print(nome.encode('utf-8'), email)
+            count = count + 1
+            print(nome, email)
+
+    if (count == 0):
+        print('No match found !')
+
 
     filein.close()
-    print ("à")
-
 
 if __name__ == '__main__':
     main()
