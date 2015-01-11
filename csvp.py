@@ -6,6 +6,10 @@ Manipulacao de arquivos csvs
 
 """
 
+# def filehandling(fin, convertedfile, outputfile) -> funcao para gerenciamento dos arquivos
+# def changecodec(fin, fconvert, filein) -> funcao para conversao de latin1 para utf8
+# def gmailcontactcsv(convertedfile, outputfile) -> funcao para gerar um arquivo csv para importar no gmail
+
 import csv, sys
 import argparse
 import codecs
@@ -13,15 +17,19 @@ import os
 
 def filehandling(fin, convertedfile, outputfile):
 
-    base          = os.path.splitext(fin)[0]
-    convertedfile = base + '-utf8.csv'
-    outputfile    = base + '-gamil.csv'
+    # geracao dos nomes dos arquivos
+
+    base          = os.path.splitext(fin)[0]  #pega o radical do arquivo de entrada
+    convertedfile = base + '-utf8.csv' 
+    outputfile    = base + '-gmail.csv'
 
     return (convertedfile, outputfile)
 
 def changecodec(fin, fconvert, filein):
 
     fout   = codecs.open(fconvert, 'w', encoding='utf-8')
+
+    # percorre o arquico de entrada linha a linha e escreve no arquivos temporario
 
     for line in filein:
         fout.write(line)
@@ -30,12 +38,17 @@ def changecodec(fin, fconvert, filein):
 
     return 
 
-#:TODO: 10.01.15 00:56:02, junior
-# implementar a escrita de arquivo no formato csv para o gmail
 def gmailcontactcsv(convertedfile, outputfile):
 
-    fout   = codecs.open(outputfile, 'w', encoding='utf-8')
+    fout = codecs.open(outputfile, 'w', encoding='utf-8')
 
+    fout.write('nome, email\n') #o gmail importa arquivos de contato no formato csv com esse cabecalho
+
+    for linha in codecs.open(convertedfile, 'rb', encoding='utf-8'):
+        matricula, nome, email = linha.split(';')
+        fout.write('%s, %s' % (nome, email))
+
+    fout.close()
     return
 
 def main():
@@ -62,15 +75,18 @@ def main():
     if args.convert or args.search :
           changecodec(args.fin, convertedfile, filein)
 
-    for linha in codecs.open(convertedfile, 'rb', encoding='utf-8'):
-        matricula, nome, email = linha.split(';')
-        if (nome.lower().find(args.search.lower()) >= 0):
-            count = count + 1
-            print(nome, email)
+    if args.search:
+      for linha in codecs.open(convertedfile, 'rb', encoding='utf-8'):
+          matricula, nome, email = linha.split(';')
+          if (nome.lower().find(args.search.lower()) >= 0):
+              count = count + 1
+              print(nome, email)
 
-    if (count == 0):
-        print('No match found !')
+      if (count == 0):
+          print('No match found !')
 
+    if args.gmail:
+      gmailcontactcsv(convertedfile, outputfile)
 
     filein.close()
 
